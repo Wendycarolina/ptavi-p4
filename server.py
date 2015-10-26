@@ -17,6 +17,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
         self.wfile.write(b"Hemos recibido tu peticion ")
         print('IP: ' + self.client_address[0])
         print('Port: ' + str(self.client_address[1]))
+        Lista = []
         while 1:
             # Leyendo línea a línea lo que nos envía el cliente
             line = self.rfile.read()
@@ -28,10 +29,15 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     if  address_1 or address_2:
                         value_a = metodo.split()[1]
                         value_b = self.client_address[0]
-                        dicc = {'Address': value_a ,'IP': value_b} 
+                        dicc = {'Address': value_a ,'IP': value_b}
+                        Lista.append(dicc)
+                        print(Lista) 
                         print(dicc)
                         self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')   
+                elif metodo.split()[0] == 'Expire':
+                        value_a = metodo.split()[1]
                         
+                    
                 elif metodo.split()[0] != 'REGISTER':
                     print("El cliente nos manda " + line.decode('utf-8'))
             
