@@ -16,17 +16,17 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
     dicc = {}
     def register2json(self):
-		"""
-		Registro o baja de cualquier usuario
-		"""
+        """
+        Registra o da de baja aun usuario
+        """
         fich = json.dumps(self.dicc)
         with open('registered.json', 'w') as fich:
             json.dump(self.dicc, fich, sort_keys=True, indent=4)
 
     def json2registered(self):
-		"""
-		Comprueba si existe un archivo json
-		"""
+        """
+        Comprueba si existe un archivo 
+        """
         if os.path.exists('registered.json'):
             self.dicc = json.loads(open('registered.json').read())
         else:
@@ -51,13 +51,15 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     Time_expire = Time + Expires 
                     Time_user = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(Time_expire))
                     Datos_User = [IP, Time_user]
+                    self.dicc[Usuario] = Datos_User
                     #Compruebo si el usuario se ha expiradoo se da de baja
-                    for Usuario in self.dicc:
+                    if Expires == 0 :
+                        del self.dicc[Usuario]
+                    for User in self.dicc:
                         Time = time.time()
-                        if Time >= Time_expire or Expires == 0:
-                            del self.dicc[Usuario]
-                        else:
-                            self.dicc[Usuario] = Datos_User
+                        if Time >= Time_expire:
+                            if Usuario in self.dicc:
+                                del self.dicc[Usuario]
                     self.register2json()
                     self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')
                 elif line.split()[0] != 'REGISTER':
