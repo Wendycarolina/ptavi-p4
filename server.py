@@ -10,11 +10,13 @@ import time
 import json
 import os.path
 
+
 class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
     Echo server class
     """
     dicc = {}
+
     def register2json(self):
         """
         Registra o da de baja aun usuario
@@ -25,7 +27,7 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
 
     def json2registered(self):
         """
-        Comprueba si existe un archivo 
+        Comprueba si existe un archivo
         """
         if os.path.exists('registered.json'):
             self.dicc = json.loads(open('registered.json').read())
@@ -48,16 +50,17 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     IP = self.client_address[0]
                     Expires = float(linea.split(':')[-1])
                     Time = time.time()
-                    Time_expire = Time + Expires 
-                    Time_user = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(Time_expire))
+                    Time_exp = Time + Expires
+                    fecha = '%Y-%m-%d %H:%M:%S'
+                    Time_user = time.strftime(fecha, time.gmtime(Time_exp))
                     Datos_User = [IP, Time_user]
                     self.dicc[Usuario] = Datos_User
                     #Compruebo si el usuario se ha expiradoo se da de baja
-                    if Expires == 0 :
+                    if Expires == 0:
                         del self.dicc[Usuario]
                     for User in self.dicc:
                         Time = time.time()
-                        if Time >= Time_expire:
+                        if Time >= Time_exp:
                             if Usuario in self.dicc:
                                 del self.dicc[Usuario]
                     self.register2json()
@@ -68,10 +71,10 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             if not line:
                 break
 
-    
+
 if __name__ == "__main__":
     # Creamos servidor de eco y escuchamos
     PORT = int(sys.argv[1])
-    serv = socketserver.UDPServer(('',PORT), SIPRegisterHandler)
+    serv = socketserver.UDPServer(('', PORT), SIPRegisterHandler)
     print("Lanzando servidor UDP de eco...")
     serv.serve_forever()
