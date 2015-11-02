@@ -16,11 +16,17 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
     """
     dicc = {}
     def register2json(self):
+		"""
+		Registro o baja de cualquier usuario
+		"""
         fich = json.dumps(self.dicc)
         with open('registered.json', 'w') as fich:
             json.dump(self.dicc, fich, sort_keys=True, indent=4)
 
     def json2registered(self):
+		"""
+		Comprueba si existe un archivo json
+		"""
         if os.path.exists('registered.json'):
             self.dicc = json.loads(open('registered.json').read())
         else:
@@ -35,7 +41,6 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
             # Leyendo línea a línea lo que nos envía el cliente
             line = self.rfile.read()
             linea = line.decode('utf-8')
-            #print(linea)
             if len(linea.split()) >= 2:
                 if linea.split()[0] == 'REGISTER':
                     #Creo y guardo datos usuario
@@ -57,7 +62,6 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
                     self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')
                 elif line.split()[0] != 'REGISTER':
                     print("El cliente nos manda " + linea)
-            
             # Si no hay más líneas salimos del bucle infinito
             if not line:
                 break
