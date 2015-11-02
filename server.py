@@ -21,25 +21,32 @@ class SIPRegisterHandler(socketserver.DatagramRequestHandler):
 
     def handle(self):
         # Escribe dirección y puerto del cliente (de tupla client_address)
-        self.wfile.write(b"Hemos recibido tu peticion ")
         print('IP: ' + self.client_address[0])
         print('Port: ' + str(self.client_address[1]))
         while 1:
             # Leyendo línea a línea lo que nos envía el cliente
             line = self.rfile.read()
-            
-            if len(line.split()) >= 2:
-              
-                if line.split()[0] == 'REGISTER':
-                    self.dicc[line[2]] = self.client_address[0]
+            linea = line.decode('utf-8')
+            #print(linea)
+            if len(linea.split()) >= 2:
+                if linea.split()[0] == 'REGISTER':
+                    Usuario = linea.split()[2]
+                    IP = self.client_address[0]
+                    Expires = float(linea.split(':')[-1])
+                    Time = time.time()
+                    Time_expire = Time + Expires 
+                    Time_user = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(Time_expire))
+                    Datos_User = [IP, Time_user]
+                    for Usuario in self.dicc:
+                        Time = time.time()
+                        if Time >= Time_expire or Expires == 0:
+                            del self.dicc[Usuario]
+                        else:
+                            self.dicc[Usuario] = Datos_User
                     self.register2json()
-                    Time = line.split()[5]
-                    if  Time == '0':
-                        del self.dicc[line[2]]
-                        self.register2json()
-                        self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')
+                    self.wfile.write(b'SIP/2.0 200 OK\r\n\r\n')
                 elif line.split()[0] != 'REGISTER':
-                    print("El cliente nos manda " + line.decode('utf-8'))
+                    print("El cliente nos manda " + linea)
 
             
             # Si no hay más líneas salimos del bucle infinito
